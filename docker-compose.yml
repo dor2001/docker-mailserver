@@ -3,19 +3,10 @@ version: '3.8'
 services:
   mailserver:
     image: docker.io/mailserver/docker-mailserver:latest
+    container_name: mailserver
     hostname: mail
     domainname: dorbenabu.com
-    container_name: mailserver
-    ports:
-      - "25:25"
-      - "143:143"
-      - "587:587"
-      - "993:993"
-    volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - maillogs:/var/log/mail
-      - ./config/:/tmp/docker-mailserver/
+    restart: unless-stopped
     environment:
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
@@ -26,7 +17,24 @@ services:
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
-    restart: unless-stopped
+    volumes:
+      - maildata:/var/mail
+      - mailstate:/var/mail-state
+      - maillogs:/var/log/mail
+      - ./config/:/tmp/docker-mailserver/
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.mail.rule=Host(`mail.dorbenabu.com`)"
+      - "traefik.http.routers.mail.entrypoints=websecure"
+      - "traefik.http.routers.mail.tls=true"
+      - "traefik.http.routers.mail.tls.certresolver=letsencrypt"
+      - "traefik.docker.network=web"
+    networks:
+      - web
+
+networks:
+  web:
+    external: true
 
 volumes:
   maildata:
