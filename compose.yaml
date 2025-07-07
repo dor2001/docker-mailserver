@@ -16,8 +16,8 @@ services:
       - ./docker-data/dms/mail-state/:/var/mail-state/
       - ./docker-data/dms/mail-logs/:/var/log/mail/
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
-      - /etc/letsencrypt/live/mail.dorbenabu.com/fullchain.pem:/tmp/docker-mailserver/ssl/fullchain.pem:ro
-      - /etc/letsencrypt/live/mail.dorbenabu.com/privkey.pem:/tmp/docker-mailserver/ssl/privkey.pem:ro
+      - ./docker-data/dms/config/ssl/fullchain.pem:/tmp/docker-mailserver/ssl/fullchain.pem:ro
+      - ./docker-data/dms/config/ssl/privkey.pem:/tmp/docker-mailserver/ssl/privkey.pem:ro
       - /etc/localtime:/etc/localtime:ro
     restart: always
     stop_grace_period: 1m
