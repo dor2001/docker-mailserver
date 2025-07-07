@@ -10,19 +10,20 @@ services:
     ports:
       - "25:25"     # SMTP (STARTTLS)
       - "143:143"   # IMAP (STARTTLS)
-      - "465:465"   # SMTP (implicit TLS)
-      - "587:587"   # SMTP (explicit TLS)
-      - "993:993"   # IMAP (implicit TLS)
+      - "465:465"   # SMTP (Implicit TLS)
+      - "587:587"   # SMTP (Explicit TLS)
+      - "993:993"   # IMAP (Implicit TLS)
     volumes:
       - ./docker-data/dms/mail-data/:/var/mail/
       - ./docker-data/dms/mail-state/:/var/mail-state/
       - ./docker-data/dms/mail-logs/:/var/log/mail/
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
-      - ./docker-data/dms/config/ssl/:/etc/letsencrypt/live/mail.dorbenabu.com/:ro
+      - ./docker-data/dms/config/ssl/fullchain.pem:/tmp/docker-mailserver/ssl/fullchain.pem:ro
+      - ./docker-data/dms/config/ssl/privkey.pem:/tmp/docker-mailserver/ssl/privkey.pem:ro
       - /etc/localtime:/etc/localtime:ro
     restart: always
     stop_grace_period: 1m
     healthcheck:
-      test: "ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1"
+      test: "ss --listening --tcp | grep -q ':25 ' || exit 1"
       timeout: 3s
-      retries: 0
+      retries: 3
