@@ -2,46 +2,33 @@ version: '3.8'
 
 services:
   mailserver:
-    image: docker.io/mailserver/docker-mailserver:latest
+    image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
     hostname: mail
     domainname: dorbenabu.com
-    restart: unless-stopped
+    restart: always
     ports:
       - "25:25"
-      - "465:465"
+      - "143:143"
       - "587:587"
       - "993:993"
+      - "465:465"
+    volumes:
+      - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - ./docker-data/dms/config/ssl/fullchain.pem:/tmp/docker-mailserver/ssl/fullchain.pem:ro
+      - ./docker-data/dms/config/ssl/privkey.pem:/tmp/docker-mailserver/ssl/privkey.pem:ro
     environment:
-      - ENABLE_SPAMASSASSIN=1
-      - ENABLE_CLAMAV=1
+      - SSL_TYPE=manual
+      - SSL_CERT_PATH=/tmp/docker-mailserver/ssl/fullchain.pem
+      - SSL_KEY_PATH=/tmp/docker-mailserver/ssl/privkey.pem
       - ENABLE_FAIL2BAN=1
-      - ENABLE_POSTGREY=1
+      - ENABLE_CLAMAV=0
+      - ENABLE_SPAMASSASSIN=1
+      - ENABLE_POSTGREY=0
       - ONE_DIR=1
-      - DMS_DEBUG=0
+      - PERMIT_DOCKER=host
+      - LOG_LEVEL=info
     cap_add:
       - NET_ADMIN
       - SYS_PTRACE
-    volumes:
-      - maildata:/var/mail
-      - mailstate:/var/mail-state
-      - maillogs:/var/log/mail
-      - ./config/:/tmp/docker-mailserver/
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.mail.rule=Host(`mail.dorbenabu.com`)"
-      - "traefik.http.routers.mail.entrypoints=websecure"
-      - "traefik.http.routers.mail.tls=true"
-      - "traefik.http.routers.mail.tls.certresolver=letsencrypt"
-      - "traefik.docker.network=web"
-    networks:
-      - web
-
-networks:
-  web:
-    external: true
-
-volumes:
-  maildata:
-  mailstate:
-  maillogs:
+    stop_grace_period: 1m
