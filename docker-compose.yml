@@ -7,6 +7,11 @@ services:
     hostname: mail
     domainname: dorbenabu.com
     restart: unless-stopped
+    ports:
+      - "25:25"
+      - "465:465"
+      - "587:587"
+      - "993:993"
     environment:
       - ENABLE_SPAMASSASSIN=1
       - ENABLE_CLAMAV=1
