@@ -2,28 +2,25 @@ services:
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
     container_name: mailserver
-    # Provide the FQDN of your mail server here (Your DNS MX record should point to this value)
-    hostname: mail.example.com
-    env_file: mailserver.env
-    # More information about the mail-server ports:
-    # https://docker-mailserver.github.io/docker-mailserver/latest/config/security/understanding-the-ports/
+    hostname: mail.dorbenabu.com
+    domainname: dorbenabu.com
+    env_file: ./docker-data/dms/config/mailserver.env
     ports:
-      - "25:25"    # SMTP  (explicit TLS => STARTTLS, Authentication is DISABLED => use port 465/587 instead)
-      - "143:143"  # IMAP4 (explicit TLS => STARTTLS)
-      - "465:465"  # ESMTP (implicit TLS)
-      - "587:587"  # ESMTP (explicit TLS => STARTTLS)
-      - "993:993"  # IMAP4 (implicit TLS)
+      - "25:25"     # SMTP (STARTTLS)
+      - "143:143"   # IMAP (STARTTLS)
+      - "465:465"   # SMTP (implicit TLS)
+      - "587:587"   # SMTP (explicit TLS)
+      - "993:993"   # IMAP (implicit TLS)
     volumes:
       - ./docker-data/dms/mail-data/:/var/mail/
       - ./docker-data/dms/mail-state/:/var/mail-state/
       - ./docker-data/dms/mail-logs/:/var/log/mail/
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
+      - ./docker-data/dms/config/ssl/fullchain.pem:/tmp/docker-mailserver/ssl/fullchain.pem:ro
+      - ./docker-data/dms/config/ssl/privkey.pem:/tmp/docker-mailserver/ssl/privkey.pem:ro
       - /etc/localtime:/etc/localtime:ro
     restart: always
     stop_grace_period: 1m
-    # Uncomment if using `ENABLE_FAIL2BAN=1`:
-    # cap_add:
-    #   - NET_ADMIN
     healthcheck:
       test: "ss --listening --ipv4 --tcp | grep --silent ':smtp' || exit 1"
       timeout: 3s
