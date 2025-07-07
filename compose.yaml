@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   mailserver:
     image: ghcr.io/docker-mailserver/docker-mailserver:latest
@@ -16,8 +18,7 @@ services:
       - ./docker-data/dms/mail-state/:/var/mail-state/
       - ./docker-data/dms/mail-logs/:/var/log/mail/
       - ./docker-data/dms/config/:/tmp/docker-mailserver/
-      - ./docker-data/dms/config/ssl/fullchain.pem:/tmp/docker-mailserver/ssl/fullchain.pem:ro
-      - ./docker-data/dms/config/ssl/privkey.pem:/tmp/docker-mailserver/ssl/privkey.pem:ro
+      - ./docker-data/dms/config/ssl/:/etc/letsencrypt/live/mail.dorbenabu.com/:ro
       - /etc/localtime:/etc/localtime:ro
     restart: always
     stop_grace_period: 1m
